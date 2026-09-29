@@ -1,0 +1,8 @@
+{
+  "service": "workflow-ownership",
+  "dev": {
+    "digest": "sphereco.jfrog.io/thor-docker-local/workflow-ownership@sha256:a4a228b3379109bcc93443f68ca98986df60d2691fe286271f72562c61467558",
+    "commitId": "08a0a4e0d04d2eade6b181f4dae632331af4dad8",
+    "deployedAt": "2026-09-28T16:18:18Z"
+  }
+}
