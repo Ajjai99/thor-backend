@@ -144,6 +144,9 @@ module "ecs" {
   execution_secret_arns = local.service_secret_arns
   uploads_bucket_arn    = module.uploads.bucket_arn
 
+  # The two Thor.Core services: each tenant's logs go to its own log group, not stdout.
+  tenant_log_group_service_keys = ["thor-api", "task-api"]
+
   tags = var.tags
 }
 

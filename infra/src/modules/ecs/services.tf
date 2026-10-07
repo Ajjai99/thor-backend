@@ -63,7 +63,14 @@ resource "aws_ecs_task_definition" "thor-svc-taskdef" {
             { name = "TLS_CERT_PFX_PATH", value = "/app/certs/server.pfx" },
             { name = "TLS_CERT_PFX_PASSWORD", value = "thor-internal" },
           ]
-        ) : []
+        ) : [],
+        # Turns on Thor.Core's per-tenant CloudWatch log groups (TenantLogGroupRouting): each
+        # tenant's events go to <service log group>/tenants/<TenantId> instead of stdout.
+        # THOR_AWS_REGION because Fargate doesn't set AWS_REGION for the SDK client.
+        contains(var.tenant_log_group_service_keys, each.key) ? [
+          { name = "THOR_TENANT_LOG_GROUP_PREFIX", value = "${aws_cloudwatch_log_group.thor-svc-logs[each.key].name}/tenants/" },
+          { name = "THOR_AWS_REGION", value = data.aws_region.current.region },
+        ] : []
       )
 
       secrets = [

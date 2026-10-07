@@ -80,6 +80,38 @@ The concrete resolver lives in `Thor.DataConnectionManager` (it needs Master DB
 access), not here — this project only owns the `ITenantLogSinkResolver`
 contract, keeping it free of any EF Core/Postgres dependency.
 
+### Per-tenant CloudWatch log groups
+
+Each tenant's logs can go to that tenant's own CloudWatch log group instead of
+stdout. It is switched on by the environment, not by code: `UseThorLogging()`
+enables it only when `THOR_TENANT_LOG_GROUP_PREFIX` is set (the ECS module sets it
+to `/ecs/<env>/<service>/tenants/`, plus `THOR_AWS_REGION`). Locally nothing
+changes.
+
+When on:
+
+- An event whose `TenantId` is a GUID goes **only** to `<prefix><tenantId>`.
+  Anything else (no tenant, or a non-GUID value) goes **only** to the console, as
+  before. The GUID check stops a junk header value from creating a log group.
+- `TenantLogGroupRouting.TryGetTenantId` is the single rule for both sides: the
+  tenant branch uses it to pick events up, and `ExcludeTenantLogGroupEvents` uses
+  it to drop the same events from the console.
+- The console exclusion lives in each service's `appsettings.json`, because that
+  is where the console sink is defined: the console sits in a `Logger`
+  sub-logger with the filter named by type:
+  ```json
+  "Filter": [ { "Name": "With", "Args": { "filter": "Thor.Core.Logging.ExcludeTenantLogGroupEvents, Thor.Core" } } ]
+  ```
+  A service that drops the filter still works; tenant events just also reach the
+  console.
+- Async and batched (Serilog.Sinks.AwsCloudWatch), like the HTTP sink. The group
+  is created on the tenant's first event with 30-day retention, outside
+  Terraform; delete it when a tenant is offboarded. At most 100 tenant sinks stay
+  open per process; past that the least recently used is flushed and closed.
+- Events still in the buffer when the process crashes are lost, and a CloudWatch
+  failure (e.g. a missing IAM grant) is reported only to Serilog's `SelfLog`, not
+  the console.
+
 ### Logging conventions
 
 - Use the level that matches the event: `Information` for normal meaningful

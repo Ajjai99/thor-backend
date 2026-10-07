@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!--
+    POC for per-tenant CloudWatch log groups written by the app itself (Thor.Core), no sidecar.
+    A minimal web API with thor-api's logging setup and middleware order. See ../README.md.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\backend\shared\Thor.Core\Thor.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- thor-api's real file, not a copy, so the POC also proves its console filter wiring. -->
+    <None Include="..\..\..\..\backend\services\Thor.API\appsettings.json" Link="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

@@ -116,6 +116,41 @@ resource "aws_iam_role_policy" "execution_secrets" {
   })
 }
 
+# Thor.Core writes each tenant's logs straight to its own log group with the task role, creating the
+# group (and its retention) on the tenant's first event — Terraform never sees those groups. Scoped
+# to the service's own tenants/ prefix, so one service can't write into another's tenant groups.
+resource "aws_iam_role_policy" "task_tenant_log_groups" {
+  for_each = toset([for k in var.tenant_log_group_service_keys : k if contains(keys(local.active_services), k)])
+
+  name = "tenant-log-groups"
+  role = aws_iam_role.task[each.key].id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:PutRetentionPolicy",
+          "logs:CreateLogStream",
+          "logs:DescribeLogStreams",
+          "logs:PutLogEvents",
+        ]
+        Resource = "arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:${aws_cloudwatch_log_group.thor-svc-logs[each.key].name}/tenants/*"
+      },
+      # The sink lists log groups to see whether a tenant's group exists before creating it.
+      # DescribeLogGroups can't be scoped to a group name (it's evaluated against
+      # "log-group::log-stream:"), so it's scoped to this account and region instead. Found by
+      # infra/poc/tenant_logs_inapp.
+      {
+        Effect   = "Allow"
+        Action   = ["logs:DescribeLogGroups"]
+        Resource = "arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:*"
+      },
+    ]
+  })
+}
+
 # task-api presigns uploads with its own task-role credentials, so the signature is only as
 # permissive as this grant — a presigned PUT the role couldn't perform itself is rejected at
 # redemption time.

@@ -16,13 +16,27 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- test/ holds the separate Thor.Core.Test project; exclude it from this project's own glob. -->
+    <Compile Remove="test\**" />
+    <Content Remove="test\**" />
+    <None Remove="test\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Thor.Core.Test" />
+  </ItemGroup>
+
+  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Pinned explicitly: Serilog.Sinks.AwsCloudWatch alone resolves an AWSSDK.Core with a known advisory (GHSA-9cvc-h2w8-phrp). -->
+    <PackageReference Include="AWSSDK.CloudWatchLogs" Version="4.0.105" />
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="10.0.1" />
     <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
+    <PackageReference Include="Serilog.Sinks.AwsCloudWatch" Version="4.4.42" />
     <PackageReference Include="Serilog.Sinks.Http" Version="9.2.1" />
     <PackageReference Include="Serilog.Sinks.Map" Version="2.0.0" />
   </ItemGroup>

@@ -91,6 +91,12 @@ variable "db_access_service_keys" {
   description = "Service keys whose task role gets rds-db:connect (Master DB as master_db_app_user + tenant DBs as tenant_*). Only those also present in active_services are granted."
 }
 
+variable "tenant_log_group_service_keys" {
+  type        = list(string)
+  default     = []
+  description = "Service keys that write each tenant's logs to its own CloudWatch log group (<service log group>/tenants/<TenantId>) via Thor.Core, instead of stdout. Sets the env vars that turn it on and grants the task role the logs actions on that prefix. Only those also present in active_services are granted."
+}
+
 variable "execution_secret_arns" {
   type        = map(list(string))
   default     = {}
