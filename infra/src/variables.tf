@@ -261,6 +261,30 @@ variable "api_cdn_waf_rate_limit" {
   default     = 2000
 }
 
+variable "enable_api_access_logging" {
+  type        = bool
+  description = "Whether the API stage writes per-request JSON access logs — the dashboard's request tables stay empty without them"
+  default     = false
+}
+
+variable "api_alarm_email" {
+  type        = string
+  description = "Email subscribed to the API's 4xx/5xx alarm SNS topic. \"\" (default) creates the topic with no subscription."
+  default     = ""
+}
+
+variable "api_4xx_alarm_threshold" {
+  type        = number
+  description = "4xx responses within one minute that trigger the API's 4xx alarm"
+  default     = 10
+}
+
+variable "api_5xx_alarm_threshold" {
+  type        = number
+  description = "5xx responses within one minute that trigger the API's 5xx alarm"
+  default     = 1
+}
+
 variable "backend_certificate_key" {
   type        = string
   description = "Which entry in the flattened hosted_zones certificates (\"<zone_key>/<cert_key>\") the NLB's TLS listener cert comes from, for NLB <-> ECS re-encryption. \"\" (default) leaves module.api_gateway's tls_config unset — must agree with the NLB's own TLS state, which this branch doesn't yet configure (see modules/ecs)."

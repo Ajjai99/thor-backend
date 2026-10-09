@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!--
+    ECS service for the API Gateway POC: reached through API Gateway → VPC link → NLB, logs per
+    tenant through the real Thor.Core, and reads/writes Aurora through RDS Proxy so the dashboard's
+    ECS, Aurora and RDS Proxy sections have real data. See ../README.md.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql" Version="10.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\backend\shared\Thor.Core\Thor.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- thor-api's real file, so the POC logs exactly the way thor-api does. -->
+    <None Include="..\..\..\..\backend\services\Thor.API\appsettings.json" Link="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

@@ -295,7 +295,25 @@ module "api_gateway" {
   cdn_price_class     = var.api_cdn_price_class
   cdn_waf_rate_limit  = var.api_cdn_waf_rate_limit
 
+  enable_access_logging   = var.enable_api_access_logging
+  alarm_email             = var.api_alarm_email
+  four_xx_alarm_threshold = var.api_4xx_alarm_threshold
+  five_xx_alarm_threshold = var.api_5xx_alarm_threshold
+
   tags = var.tags
+}
+
+# Request volume, 4xx/5xx, latency and per-request access-log tables for the API above.
+module "cloudwatch_dashboard" {
+  count = var.enable_compute ? 1 : 0
+
+  source = "./modules/cloudwatch_dashboard"
+
+  dashboard_name        = "thor-${var.environment}-api"
+  api_id                = module.api_gateway[0].api_id
+  stage_name            = module.api_gateway[0].stage_name
+  access_log_group_name = module.api_gateway[0].access_log_group_name
+  aws_region            = var.aws_region
 }
 
 # Tenant scan-data uploads. Independent of compute — task-api only ever presigns against it, so

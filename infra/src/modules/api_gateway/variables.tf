@@ -86,6 +86,36 @@ variable "global_region" {
   default     = ""
 }
 
+variable "enable_access_logging" {
+  type        = bool
+  description = "Whether the stage writes one JSON line per request to the access log group — what the dashboard's request tables query"
+  default     = false
+}
+
+variable "access_log_retention_days" {
+  type        = number
+  description = "Retention of the stage's access log group"
+  default     = 30
+}
+
+variable "alarm_email" {
+  type        = string
+  description = "Email subscribed to the 4xx/5xx alarm SNS topic. \"\" (default) creates the topic with no subscription."
+  default     = ""
+}
+
+variable "four_xx_alarm_threshold" {
+  type        = number
+  description = "4xx responses within one minute that put the 4xx alarm into ALARM"
+  default     = 10
+}
+
+variable "five_xx_alarm_threshold" {
+  type        = number
+  description = "5xx responses within one minute that put the 5xx alarm into ALARM"
+  default     = 1
+}
+
 variable "tls_server_name" {
   type        = string
   description = "Hostname to verify against the NLB listener's cert (its CN/SAN) and send via SNI, for NLB <-> ECS TLS re-encryption. \"\" (default) leaves the integration on plain HTTP, matching the NLB's own default (non-TLS) listener — must agree with whatever set the NLB's cert."

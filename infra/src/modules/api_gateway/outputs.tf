@@ -15,6 +15,14 @@ output "invoke_url" {
   value       = aws_apigatewayv2_stage.thor-apigw-stage.invoke_url
 }
 
+output "access_log_group_name" {
+  value = aws_cloudwatch_log_group.access_logs.name
+}
+
+output "alarm_sns_topic_arn" {
+  value = aws_sns_topic.api_alarms.arn
+}
+
 output "cdn_distribution_id" {
   description = "CloudFront distribution ID — needed to create invalidations"
   value       = aws_cloudfront_distribution.api.id

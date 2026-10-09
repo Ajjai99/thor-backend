@@ -124,6 +124,12 @@ inputs = {
   api_cdn_price_class     = "PriceClass_100"
   api_cdn_waf_rate_limit  = 2000
 
+  # --- api monitoring (access logs, 4xx/5xx alarms -> SNS, cloudwatch dashboard) ---
+  enable_api_access_logging = true
+  api_alarm_email           = "" # TODO: set a real address; "" creates the SNS topic with no subscriber
+  api_4xx_alarm_threshold   = 10
+  api_5xx_alarm_threshold   = 1
+
   # --- nlb <-> ecs TLS re-encryption ---
   backend_certificate_key = "thor/backend"
 
